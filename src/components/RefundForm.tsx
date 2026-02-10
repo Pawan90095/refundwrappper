@@ -16,7 +16,7 @@ const FormSchema = z.object({
     customerNote: z.string().optional(),
     customerSegment: z.enum(['New', 'Regular', 'VIP', 'High Risk']),
     items: z.string().min(1, 'Product required'),
-    addressMismatch: z.boolean().default(false),
+    addressMismatch: z.boolean(),
 });
 
 type FormData = z.infer<typeof FormSchema>;
