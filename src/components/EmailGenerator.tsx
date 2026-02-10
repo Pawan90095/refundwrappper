@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Mail, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { RefundAnalysisResult } from '@/lib/schemas/refund';
 
@@ -11,24 +11,13 @@ interface EmailGeneratorProps {
 
 export function EmailGenerator({ result, customerName }: EmailGeneratorProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [emailBody, setEmailBody] = useState('');
     const [copied, setCopied] = useState(false);
 
-    useEffect(() => {
-        if (result) {
-            generateEmail();
-        }
-    }, [result, customerName]);
-
-    const generateEmail = () => {
-        let subject = '';
-        let body = '';
-
+    const emailBody = useMemo(() => {
         const firstName = customerName.split(' ')[0] || 'Customer';
 
         if (result.action === 'APPROVE') {
-            subject = `Update on your refund request`;
-            body = `Hi ${firstName},
+            return `Hi ${firstName},
 
 We have good news regarding your refund request.
 
@@ -39,8 +28,7 @@ We apologize for any inconvenience caused. We value your business and hope to se
 Best regards,
 The Customer Service Team`;
         } else if (result.action === 'REJECT') {
-            subject = `Update on your refund request`;
-            body = `Hi ${firstName},
+            return `Hi ${firstName},
 
 Thank you for contacting us regarding your order.
 
@@ -56,8 +44,7 @@ Best regards,
 The Customer Service Team`;
         } else {
             // FLAG / REQUEST_MORE_INFO
-            subject = `Action required: Your refund request`;
-            body = `Hi ${firstName},
+            return `Hi ${firstName},
 
 Thank you for your refund request.
 
@@ -70,9 +57,7 @@ Once we receive this, we will be able to finalize your request immediately.
 Best regards,
 The Customer Service Team`;
         }
-
-        setEmailBody(body);
-    };
+    }, [customerName, result]);
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(emailBody);

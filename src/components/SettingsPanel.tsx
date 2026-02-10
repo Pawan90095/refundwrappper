@@ -33,6 +33,7 @@ export function SettingsPanel({ isOpen, onClose, onSave, currentSettings }: Sett
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLocalSettings(currentSettings);
     }, [currentSettings, isOpen]);
 
@@ -103,7 +104,9 @@ export function SettingsPanel({ isOpen, onClose, onSave, currentSettings }: Sett
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
                             <label className="text-sm font-medium text-slate-300">Require Photo Proof</label>
-                            <p className="text-xs text-slate-500">For "Damaged" or "Wrong Item" claims.</p>
+                            <p className="text-xs text-slate-500">
+                                For {`"Damaged"`} or {`"Wrong Item"`} claims.
+                            </p>
                         </div>
                         <button
                             onClick={() => handleChange('require_photo_proof', !localSettings.require_photo_proof)}

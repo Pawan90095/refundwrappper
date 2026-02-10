@@ -162,7 +162,9 @@ export function BreakdownPanel({
                             <div>
                                 <div className="text-xs text-slate-500 mb-2">Suggested Response:</div>
                                 {suggestedAction.talking_points.map((point, i) => (
-                                    <p key={i} className="text-sm text-slate-300 italic mb-1">"{point}"</p>
+                                    <p key={i} className="text-sm text-slate-300 italic mb-1">
+                                        {`"${point}"`}
+                                    </p>
                                 ))}
                             </div>
                         )}

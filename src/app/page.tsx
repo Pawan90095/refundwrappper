@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Shield, Loader2, Zap, AlertTriangle, User, Settings as SettingsIcon, LogOut } from 'lucide-react';
 import { RiskGauge } from '@/components/RiskGauge';
 import { DecisionCard } from '@/components/DecisionCard';
@@ -258,9 +259,11 @@ export default function Home() {
                     {/* User Controls */}
                     <div className="absolute right-0 top-0 flex items-center gap-3">
                         {session?.user?.image && (
-                            <img
+                            <Image
                                 src={session.user.image}
                                 alt={session.user.name || "User"}
+                                width={32}
+                                height={32}
                                 className="w-8 h-8 rounded-full border border-slate-700 hidden sm:block"
                             />
                         )}
@@ -380,7 +383,7 @@ export default function Home() {
                                 </span>
                                 <span className="text-slate-500">•</span>
                                 <span className="text-slate-400">
-                                    Reason: "{inputData.refundReason}"
+                                    Reason: {`"${inputData.refundReason}"`}
                                 </span>
                             </div>
                         </div>
