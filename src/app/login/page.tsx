@@ -1,3 +1,5 @@
+'use client';
+
 import { signIn, useSession } from "next-auth/react";
 import { Shield, Mail } from "lucide-react";
 import React, { useState, useEffect } from "react";
