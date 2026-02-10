@@ -1,16 +1,31 @@
-'use client';
-
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Shield, Mail } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [email, setEmail] = useState("");
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.push("/");
+        }
+    }, [status, router]);
 
     const handleEmailSignIn = (e: React.FormEvent) => {
         e.preventDefault();
         signIn("email", { email, callbackUrl: "/" });
     };
+
+    if (status === "loading") {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+                <div className="text-white">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
