@@ -252,170 +252,326 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen p-8 bg-slate-950 text-slate-200 font-sans">
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12 relative">
-                    {/* User Controls */}
-                    <div className="absolute right-0 top-0 flex items-center gap-3">
-                        {session?.user?.image && (
-                            <Image
-                                src={session.user.image}
-                                alt={session.user.name || "User"}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-full border border-slate-700 hidden sm:block"
-                            />
-                        )}
-                        <button
-                            onClick={() => setIsSettingsOpen(true)}
-                            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
-                            title="Settings"
-                        >
-                            <SettingsIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                            onClick={() => signOut()}
-                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
-                            title="Sign Out"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
-                    </div>
-
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <Shield className="w-12 h-12 text-green-400" />
-                        <h1 className="text-4xl font-bold text-white">RefundGuard AI</h1>
-                    </div>
-                    <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                        Intelligent fraud detection powered by Groq (Llama 3.3). Analyze refund requests in seconds with
-                        AI-powered risk scoring and actionable recommendations.
-                    </p>
-                </div>
-
-                {/* Settings Panel */}
-                <SettingsPanel
-                    isOpen={isSettingsOpen}
-                    onClose={() => setIsSettingsOpen(false)}
-                    onSave={saveSettings}
-                    currentSettings={settings}
-                />
-
-                {/* Manual Input Form */}
-                <RefundForm onAnalyze={analyzeRefund} isLoading={isLoading} />
-
-                {/* Demo Scenario Buttons */}
-                <div className="mb-8">
-                    <h2 className="text-sm font-medium text-slate-400 mb-4 flex items-center gap-2">
-                        <Zap className="w-4 h-4" />
-                        Or Try a Demo Scenario
-                    </h2>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        {Object.entries(demoScenarios).map(([key, scenario]) => (
-                            <button
-                                key={key}
-                                onClick={() => loadDemo(key as keyof typeof demoScenarios)}
-                                disabled={isLoading}
-                                className="p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-slate-600 hover:bg-slate-800 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <div className="font-semibold text-white mb-1">{scenario.name}</div>
-                                <div className="text-sm text-slate-400">
-                                    ${scenario.data.refundAmount.toFixed(2)} • {scenario.data.customerHistory.total_orders} orders
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Loading State */}
-                {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="relative">
-                            <div className="w-20 h-20 border-4 border-slate-700 rounded-full"></div>
-                            <div className="absolute inset-0 w-20 h-20 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+        <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-sky-50 text-slate-900">
+            <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 md:px-8">
+                {/* Left rail */}
+                <aside className="hidden h-[640px] w-16 flex-col justify-between rounded-3xl bg-white/80 p-4 shadow-lg shadow-slate-200/80 ring-1 ring-slate-100 md:flex">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-md">
+                            <Shield className="h-5 w-5" />
                         </div>
-                        <p className="mt-6 text-slate-300 text-lg">Analyzing refund request...</p>
-                        <p className="text-slate-500 text-sm mt-2">AI is evaluating 7 risk dimensions</p>
+                        <div className="h-px w-8 bg-slate-200" />
+                        <button className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-900 text-slate-50 shadow-sm">
+                            <Zap className="h-4 w-4" />
+                        </button>
+                        <button className="flex h-9 w-9 items-center justify-center rounded-2xl text-slate-400 hover:bg-slate-100 hover:text-slate-900">
+                            <User className="h-4 w-4" />
+                        </button>
+                        <button className="flex h-9 w-9 items-center justify-center rounded-2xl text-slate-400 hover:bg-slate-100 hover:text-slate-900">
+                            <SettingsIcon className="h-4 w-4" />
+                        </button>
                     </div>
-                )}
+                    <button
+                        onClick={() => signOut()}
+                        className="flex h-9 w-9 items-center justify-center rounded-2xl text-slate-400 hover:bg-rose-50 hover:text-rose-500"
+                        title="Sign out"
+                    >
+                        <LogOut className="h-4 w-4" />
+                    </button>
+                </aside>
 
-                {/* Error State */}
-                {error && (
-                    <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 mb-8">
+                {/* Main content column */}
+                <div className="flex-1 space-y-6">
+                    {/* Top bar */}
+                    <header className="flex items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+                                Daily overview
+                            </p>
+                            <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
+                                Hi there, ready to tame your refunds?
+                            </h1>
+                        </div>
                         <div className="flex items-center gap-3">
-                            <AlertTriangle className="w-6 h-6 text-red-400" />
-                            <div>
-                                <h3 className="text-red-400 font-semibold">Analysis Failed</h3>
-                                <p className="text-slate-300 text-sm">{error}</p>
+                            {session?.user?.image && (
+                                <Image
+                                    src={session.user.image}
+                                    alt={session.user.name || 'User'}
+                                    width={40}
+                                    height={40}
+                                    className="hidden h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm sm:block"
+                                />
+                            )}
+                            <button
+                                onClick={() => setIsSettingsOpen(true)}
+                                className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 md:flex"
+                            >
+                                <SettingsIcon className="h-3.5 w-3.5" />
+                                Policy settings
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Hero panel */}
+                    <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)]">
+                        {/* Greeting + feature cards */}
+                        <div className="space-y-5 rounded-3xl bg-white/90 p-6 shadow-xl shadow-slate-200/70 ring-1 ring-slate-100 md:p-8">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="space-y-2">
+                                    <h2 className="text-2xl font-semibold text-slate-900 md:text-3xl">
+                                        Hi merchant, ready to reduce refund fraud?
+                                    </h2>
+                                    <p className="max-w-xl text-sm text-slate-500 md:text-base">
+                                        Analyze refund requests in seconds, get clear risk scores, and send
+                                        friendly, on-brand responses powered by AI.
+                                    </p>
+                                </div>
+                                <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 md:inline-flex">
+                                    Live • Groq Llama 3.3
+                                </span>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-3">
+                                <div className="flex flex-col justify-between rounded-2xl bg-slate-900 text-slate-50 p-4 shadow-sm">
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+                                            Fast start
+                                        </p>
+                                        <h3 className="text-sm font-semibold">
+                                            Contribute cases, track risk, stay in control.
+                                        </h3>
+                                    </div>
+                                    <p className="mt-3 text-xs text-slate-300">
+                                        Paste a refund request or use a demo to see RefundGuard in action.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col justify-between rounded-2xl bg-sky-50 p-4 shadow-sm ring-1 ring-sky-100">
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-sky-600/80">
+                                            Collaborate with AI
+                                        </p>
+                                        <h3 className="text-sm font-semibold text-slate-900">
+                                            Get structured risk analysis &amp; decisions.
+                                        </h3>
+                                    </div>
+                                    <p className="mt-3 text-xs text-sky-800/80">
+                                        See why a refund looks safe, risky, or needs more info.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col justify-between rounded-2xl bg-amber-50 p-4 shadow-sm ring-1 ring-amber-100">
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-amber-700/90">
+                                            Stay organized
+                                        </p>
+                                        <h3 className="text-sm font-semibold text-slate-900">
+                                            Keep history &amp; send better emails.
+                                        </h3>
+                                    </div>
+                                    <p className="mt-3 text-xs text-amber-800/80">
+                                        Review the last 10 analyses and reuse proven responses.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Search-style input hint */}
+                            <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-3 text-xs text-slate-500">
+                                <span className="truncate">
+                                    Example: &ldquo;Customer says package was never delivered but carrier shows
+                                    delivered&rdquo;
+                                </span>
+                                <span className="hidden rounded-full bg-slate-900 px-3 py-1 text-[10px] font-medium text-slate-50 md:inline-flex">
+                                    Paste case below to begin
+                                </span>
                             </div>
                         </div>
-                    </div>
-                )}
 
-                {/* Results */}
-                {result && !isLoading && inputData && (
-                    <div className="space-y-6 animate-in fade-in duration-500">
-                        {/* Top Row: Gauge + Decision */}
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 flex items-center justify-center">
-                                <RiskGauge score={result.risk_score} size={250} />
+                        {/* Assistant card */}
+                        <div className="flex flex-col justify-between rounded-3xl bg-slate-900 text-slate-50 p-6 shadow-xl shadow-slate-900/40">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+                                        RefundGuard assistant
+                                    </p>
+                                    <p className="mt-2 text-sm font-semibold">
+                                        &ldquo;Hey! Need a second opinion on a tricky refund?&rdquo;
+                                    </p>
+                                </div>
+                                <div className="relative">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 shadow-lg">
+                                        <span className="text-2xl">🤖</span>
+                                    </div>
+                                    <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
+                                </div>
                             </div>
-                            <div className="flex flex-col justify-center">
-                                <DecisionCard
-                                    action={result.action}
-                                    confidence={result.confidence}
-                                    fraudProbability={result.fraud_probability}
-                                    recommendation={result.reasoning.recommendation}
+                            <div className="mt-6 space-y-3 text-xs text-slate-300">
+                                <p>
+                                    I&apos;ll score each refund 0–100, flag fraud patterns, and suggest an action that
+                                    matches your policy.
+                                </p>
+                                <p>
+                                    Start with a **real case**, or try a demo scenario. You can always tweak your policy
+                                    in settings.
+                                </p>
+                            </div>
+                            <div className="mt-6 flex flex-wrap gap-2">
+                                <button
+                                    onClick={() => loadDemo('lowRisk')}
+                                    disabled={isLoading}
+                                    className="rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-900 hover:bg-white disabled:opacity-60"
+                                >
+                                    Low-risk demo
+                                </button>
+                                <button
+                                    onClick={() => loadDemo('mediumRisk')}
+                                    disabled={isLoading}
+                                    className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-50 hover:bg-slate-700 disabled:opacity-60"
+                                >
+                                    Medium-risk demo
+                                </button>
+                                <button
+                                    onClick={() => loadDemo('highRisk')}
+                                    disabled={isLoading}
+                                    className="rounded-full border border-slate-600 px-3 py-1 text-xs font-medium text-slate-50 hover:bg-slate-800/80 disabled:opacity-60"
+                                >
+                                    High-risk demo
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Analysis workspace */}
+                    <section className="space-y-6 rounded-3xl bg-white/90 p-4 shadow-lg shadow-slate-200/70 ring-1 ring-slate-100 md:p-6">
+                        {/* Settings Panel (portal-style overlay) */}
+                        <SettingsPanel
+                            isOpen={isSettingsOpen}
+                            onClose={() => setIsSettingsOpen(false)}
+                            onSave={saveSettings}
+                            currentSettings={settings}
+                        />
+
+                        {/* Manual Input Form */}
+                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                            <div>
+                                <h3 className="mb-3 text-sm font-medium text-slate-700">
+                                    1. Paste refund request details
+                                </h3>
+                                <RefundForm onAnalyze={analyzeRefund} isLoading={isLoading} />
+                            </div>
+                            <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
+                                <h3 className="text-sm font-medium text-slate-700">
+                                    2. Or jump into a demo
+                                </h3>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    {Object.entries(demoScenarios).map(([key, scenario]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => loadDemo(key as keyof typeof demoScenarios)}
+                                            disabled={isLoading}
+                                            className="flex flex-col rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-xs text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md disabled:opacity-50"
+                                        >
+                                            <span className="mb-1 font-semibold">{scenario.name}</span>
+                                            <span className="text-[11px] text-slate-500">
+                                                ${scenario.data.refundAmount.toFixed(2)} •{' '}
+                                                {scenario.data.customerHistory.total_orders} orders
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Loading State */}
+                        {isLoading && (
+                            <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50 py-10">
+                                <div className="relative">
+                                    <div className="h-16 w-16 rounded-full border-4 border-slate-200" />
+                                    <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+                                </div>
+                                <p className="mt-4 text-sm font-medium text-slate-700">Analyzing refund request…</p>
+                                <p className="mt-1 text-xs text-slate-500">
+                                    AI is evaluating 7 risk dimensions against your current policy.
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Error State */}
+                        {error && (
+                            <div className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                                <AlertTriangle className="mt-0.5 h-4 w-4" />
+                                <div>
+                                    <p className="font-medium">Analysis failed</p>
+                                    <p className="text-xs text-rose-700/90">{error}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Results */}
+                        {result && !isLoading && inputData && (
+                            <div className="space-y-6">
+                                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)]">
+                                    <div className="flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-6 text-slate-50">
+                                        <RiskGauge score={result.risk_score} size={220} />
+                                    </div>
+                                    <div className="space-y-4">
+                                        <DecisionCard
+                                            action={result.action}
+                                            confidence={result.confidence}
+                                            fraudProbability={result.fraud_probability}
+                                            recommendation={result.reasoning.recommendation}
+                                        />
+                                        <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                                            <div className="flex items-center gap-2">
+                                                <User className="h-4 w-4 text-slate-400" />
+                                                <span className="font-medium text-slate-800">
+                                                    {inputData.customerName}
+                                                </span>
+                                                <span className="text-slate-400">•</span>
+                                                <span className="text-slate-500">
+                                                    Order #{inputData.orderNumber}
+                                                </span>
+                                            </div>
+                                            <p className="mt-2 text-slate-600">
+                                                Reason: {`"${inputData.refundReason}"`}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <BreakdownPanel
+                                    scoreBreakdown={result.score_breakdown}
+                                    redFlags={result.red_flags}
+                                    greenFlags={result.green_flags}
+                                    reasoning={result.reasoning}
+                                    suggestedAction={result.suggested_action_for_merchant}
+                                />
+
+                                <EmailGenerator
+                                    result={result}
+                                    customerName={inputData?.customerName || 'Customer'}
                                 />
                             </div>
+                        )}
+
+                        {/* History Panel */}
+                        <div className="rounded-2xl bg-slate-50 p-4">
+                            <HistoryPanel
+                                history={history}
+                                onSelect={loadHistoryItem}
+                                onClear={clearHistory}
+                            />
                         </div>
+                    </section>
 
-                        {/* Customer Info */}
-                        <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-4">
-                            <div className="flex items-center gap-3 text-slate-300">
-                                <User className="w-5 h-5 text-slate-400" />
-                                <span className="font-medium">
-                                    {inputData.customerName}
-                                </span>
-                                <span className="text-slate-500">•</span>
-                                <span className="text-slate-400">
-                                    Order #{inputData.orderNumber}
-                                </span>
-                                <span className="text-slate-500">•</span>
-                                <span className="text-slate-400">
-                                    Reason: {`"${inputData.refundReason}"`}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Detailed Breakdown */}
-                        <BreakdownPanel
-                            scoreBreakdown={result.score_breakdown}
-                            redFlags={result.red_flags}
-                            greenFlags={result.green_flags}
-                            reasoning={result.reasoning}
-                            suggestedAction={result.suggested_action_for_merchant}
-                        />
-
-                        {/* Email Response Generator */}
-                        <EmailGenerator
-                            result={result}
-                            customerName={inputData?.customerName || 'Customer'}
-                        />
-                    </div>
-                )}
-
-                {/* History Panel */}
-                <HistoryPanel
-                    history={history}
-                    onSelect={loadHistoryItem}
-                    onClear={clearHistory}
-                />
-
-                {/* Footer */}
-                <footer className="mt-16 text-center text-slate-500 text-sm">
-                    <p>Powered by Groq (Llama 3.3) • Built for intelligent fraud detection</p>
-                </footer>
+                    {/* Footer */}
+                    <footer className="pb-2 pt-2 text-xs text-slate-400">
+                        <p>
+                            Powered by Groq (Llama 3.3) • RefundGuard AI helps you approve good customers faster and
+                            catch suspicious patterns earlier.
+                        </p>
+                    </footer>
+                </div>
             </div>
         </main>
     );
