@@ -18,7 +18,8 @@ export default function LoginPage() {
 
     const handleEmailSignIn = (e: React.FormEvent) => {
         e.preventDefault();
-        signIn("email", { email, callbackUrl: "/" });
+        // Use credentials provider for a dev-friendly, passwordless login
+        signIn("credentials", { email, callbackUrl: "/" });
     };
 
     if (status === "loading") {
